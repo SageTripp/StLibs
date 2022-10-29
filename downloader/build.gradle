@@ -63,7 +63,7 @@ afterEvaluate {
             release(MavenPublication) {
                 from components.release
                 groupId = "$group"
-                artifactId = "$artifactId"
+                artifactId = "downloader"
                 version = "$version"
             }
         }
