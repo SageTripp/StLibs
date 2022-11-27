@@ -16,3 +16,4 @@ dependencyResolutionManagement {
 rootProject.name = "Libs"
 include ':app'
 include ':downloader'
+include ':stMvi'

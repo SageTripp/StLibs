@@ -1,8 +1,7 @@
 buildscript {
     ext {
         compose_ui_version = '1.2.1'
-        group = "com.github.SageTripp"
-        version = '0.1-bata02'
+        group = "com.github.SageTripp.StDev"
     }
 }// Top-level build file where you can add configuration options common to all sub-projects/modules.
 plugins {

@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "$group"
-version = "$version"
+version = "0.0.1-alpha01"
 
 android {
     namespace 'com.st.downloader'
@@ -15,7 +15,7 @@ android {
         minSdk 24
         targetSdk 32
         versionCode 1
-        versionName "$version"
+        versionName version
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -40,7 +40,7 @@ android {
         compose true
     }
     composeOptions {
-        kotlinCompilerExtensionVersion '1.3.2'
+        kotlinCompilerExtensionVersion libs.versions.composecompiler.get()
     }
     packagingOptions {
         resources {
@@ -50,10 +50,11 @@ android {
 }
 
 dependencies {
-    implementation "androidx.compose.ui:ui:$compose_ui_version"
-    implementation "androidx.compose.ui:ui-tooling-preview:$compose_ui_version"
-    implementation "com.squareup.okhttp3:okhttp:4.10.0"
-    implementation 'androidx.core:core-ktx:1.8.0'
+    implementation platform(libs.compose.bom)
+    implementation libs.bundles.compose
+    debugImplementation libs.bundles.compose.debug
+    implementation libs.androidx.core
+    implementation libs.okhttp
 }
 
 afterEvaluate {
@@ -62,9 +63,9 @@ afterEvaluate {
             // Creates a Maven publication called "release".
             release(MavenPublication) {
                 from components.release
-                groupId = "$group"
+                groupId = group
                 artifactId = "downloader"
-                version = "$version"
+                version = version
             }
         }
     }
