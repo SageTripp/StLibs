@@ -56,3 +56,17 @@ dependencies {
     implementation libs.androidx.core
     implementation libs.okhttp
 }
+
+afterEvaluate {
+    publishing {
+        publications {
+            // Creates a Maven publication called "release".
+            release(MavenPublication) {
+                from components.release
+                groupId = group
+                artifactId = "downloader"
+                version = version
+            }
+        }
+    }
+}
