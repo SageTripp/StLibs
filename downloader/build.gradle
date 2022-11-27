@@ -9,11 +9,11 @@ version = "0.0.1-alpha01"
 
 android {
     namespace 'com.st.downloader'
-    compileSdk 32
+    compileSdk 33
 
     defaultConfig {
         minSdk 24
-        targetSdk 32
+        targetSdk 33
         versionCode 1
         versionName version
 
