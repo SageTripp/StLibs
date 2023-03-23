@@ -9,12 +9,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.shareIn
-import kotlinx.coroutines.withContext
 
 
 sealed class LoadState(
@@ -43,18 +41,15 @@ open class AsyncTask {
     suspend fun collect(
         listen: LoadStateListener.() -> Unit = {},
     ) {
-        withContext(Dispatchers.Default) {
-            val listener = LoadStateListener().apply { listen() }
-            loadState.shareIn(this, SharingStarted.Eagerly, 0).collectLatest {
-                when (it) {
-                    is LoadState.Error -> listener.onError?.invoke(it.msg, it.e)
-                    LoadState.Finish -> listener.onFinish?.invoke()
-                    LoadState.Idle -> listener.onIdle?.invoke()
-                    LoadState.Loading -> listener.onLoading?.invoke()
-                }
+        val listener = LoadStateListener().apply { listen() }
+        loadState.collectLatest {
+            when (it) {
+                is LoadState.Error -> listener.onError?.invoke(it.msg, it.e)
+                LoadState.Finish -> listener.onFinish?.invoke()
+                LoadState.Idle -> listener.onIdle?.invoke()
+                LoadState.Loading -> listener.onLoading?.invoke()
             }
         }
-
     }
 
     @Composable
