@@ -9,11 +9,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.shareIn
 
 
 sealed class LoadState(
@@ -60,7 +59,7 @@ class AsyncTask {
         val stateListen by rememberUpdatedState(newValue = listen)
         val listener by remember { mutableStateOf(LoadStateListener().apply { stateListen() }) }
         LaunchedEffect(stateListen) {
-            loadState.collectLatest {
+            loadState.shareIn(this, SharingStarted.Eagerly, 0).collectLatest {
                 when (it) {
                     is LoadState.Error -> listener.onError?.invoke(it.msg, it.e)
                     LoadState.Finish -> listener.onFinish?.invoke()
