@@ -59,7 +59,7 @@ class AsyncTask {
         val stateListen by rememberUpdatedState(newValue = listen)
         val listener by remember { mutableStateOf(LoadStateListener().apply { stateListen() }) }
         LaunchedEffect(stateListen) {
-            loadState.shareIn(this, SharingStarted.Lazily, 0).collectLatest {
+            loadState/*.shareIn(this, SharingStarted.Lazily, 0)*/.collectLatest {
                 when (it) {
                     is LoadState.Error -> listener.onError?.invoke(it.msg, it.e)
                     LoadState.Finish -> listener.onFinish?.invoke()
