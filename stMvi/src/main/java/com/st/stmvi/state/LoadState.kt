@@ -9,10 +9,12 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.shareIn
+import kotlinx.coroutines.withContext
 
 
 sealed class LoadState(
@@ -30,7 +32,7 @@ sealed class LoadState(
         LoadState(completed = true, isError = true)
 }
 
-class AsyncTask {
+open class AsyncTask {
     internal var loadState: MutableStateFlow<LoadState> = MutableStateFlow(LoadState.Idle)
 
     val loading get() = loadState.value.loading
@@ -41,15 +43,18 @@ class AsyncTask {
     suspend fun collect(
         listen: LoadStateListener.() -> Unit = {},
     ) {
-        val listener = LoadStateListener().apply { listen() }
-        loadState.collectLatest {
-            when (it) {
-                is LoadState.Error -> listener.onError?.invoke(it.msg, it.e)
-                LoadState.Finish -> listener.onFinish?.invoke()
-                LoadState.Idle -> listener.onIdle?.invoke()
-                LoadState.Loading -> listener.onLoading?.invoke()
+        withContext(Dispatchers.Default) {
+            val listener = LoadStateListener().apply { listen() }
+            loadState.shareIn(this, SharingStarted.Eagerly, 0).collectLatest {
+                when (it) {
+                    is LoadState.Error -> listener.onError?.invoke(it.msg, it.e)
+                    LoadState.Finish -> listener.onFinish?.invoke()
+                    LoadState.Idle -> listener.onIdle?.invoke()
+                    LoadState.Loading -> listener.onLoading?.invoke()
+                }
             }
         }
+
     }
 
     @Composable
@@ -59,7 +64,7 @@ class AsyncTask {
         val stateListen by rememberUpdatedState(newValue = listen)
         val listener by remember { mutableStateOf(LoadStateListener().apply { stateListen() }) }
         LaunchedEffect(stateListen) {
-            loadState/*.shareIn(this, SharingStarted.Lazily, 0)*/.collectLatest {
+            loadState.shareIn(this, SharingStarted.Eagerly, 0).collectLatest {
                 when (it) {
                     is LoadState.Error -> listener.onError?.invoke(it.msg, it.e)
                     LoadState.Finish -> listener.onFinish?.invoke()
