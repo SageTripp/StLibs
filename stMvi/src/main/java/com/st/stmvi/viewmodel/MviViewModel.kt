@@ -59,8 +59,8 @@ abstract class MviViewModel<S : UiState, E : UiEvent>(initializerState: S) : Vie
                 executor(uiStore.state)
                 finish()
             } catch (e: Exception) {
-                onError(e)
                 error(errorMsg(e), e)
+                onError(e)
             }
         }
     }
